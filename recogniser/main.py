@@ -16,16 +16,16 @@ def display(title, image):
 def threshold_image(region):
     display("region", region)
 
-    gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+    thresh1 = cv2.threshold(region, 100, 255, cv2.THRESH_BINARY)[1]
+    display("thresh1", thresh1)
+
+    gray = cv2.cvtColor(thresh1, cv2.COLOR_BGR2GRAY)
     display("gray", gray)
 
-    blurred = cv2.medianBlur(gray, 5)
-    display("blurred", blurred)
+    thresh2 = cv2.threshold(gray, 60, 255, cv2.THRESH_BINARY)[1]
+    display("thresh2", thresh2)
 
-    thresh = cv2.threshold(blurred, 80, 255, cv2.THRESH_BINARY)[1]
-    display("thresh", thresh)
-
-    return thresh
+    return thresh2
 
 
 def detect_shape(contour):
@@ -61,13 +61,13 @@ def find_single_block(file_name, top_left, lower_right):
             if shape is not None:
                 lego_blocks.append(shape)
         except Exception:
-            # Ignore this, most likely a contour from
+            # Ignore this, most likely a contour from a light glare or side of the platform
             pass
 
     if len(lego_blocks) > 1:
         raise Exception('more than 1 block detected in ' + file_name)
     elif len(lego_blocks) < 1:
-        raise Exception('no block detected in ' + file_name)
+        return None
 
     return lego_blocks[0]
 
@@ -78,7 +78,7 @@ def main():
 
     # TODO create the image and feed it to find_single_block()
 
-    for f in glob.glob("*.png"):
+    for f in glob.glob("*-7.png"):
         try:
             lego_block = find_single_block(f, top_left, lower_right)
             print str(lego_block)
