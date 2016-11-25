@@ -64,7 +64,7 @@ class legoPlatform:
             self.moveServo(self.servoList[0], self.servoList[0].center, self.servoList[0].min)
         if (direction == "right"):
             self.moveServo(self.servoList[0], self.servoList[0].center, self.servoList[0].max)
-        if (direction == "top"):
+        if (direction == "up"):
             self.moveServo(self.servoList[1], self.servoList[1].center, self.servoList[1].min)
-        if (direction == "bottom"):
+        if (direction == "down"):
             self.moveServo(self.servoList[1], self.servoList[1].center, self.servoList[1].max)
