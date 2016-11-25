@@ -16,7 +16,7 @@ def threshold_image(region):
     cv2.imshow("blurred", blurred)
     cv2.waitKey(0)
 
-    thresh = cv2.threshold(blurred, 150, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    thresh = cv2.threshold(blurred, 80, 255, cv2.THRESH_BINARY)[1]
     cv2.imshow("thresh", thresh)
     cv2.waitKey(0)
 
@@ -57,23 +57,31 @@ def main():
     contours = cv2.findContours(thresholded.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = contours[0] if imutils.is_cv2() else contours[1]
 
+    lego_blocks = []
+
     for contour in contours:
         try:
             # compute the center of the contour, then detect the name of the shape using only the contour
-            M = cv2.moments(contour)
-            cX = int(M["m10"] / M["m00"])
-            cY = int(M["m01"] / M["m00"])
+            moments = cv2.moments(contour)
+            cx = int(moments["m10"] / moments["m00"])
+            cy = int(moments["m01"] / moments["m00"])
             shape = detect_shape(contour)
 
             if shape is not None:
+                lego_blocks.append(shape)
                 cv2.drawContours(region, [contour], -1, (0, 255, 0), 2)
-                cv2.putText(region, shape, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                cv2.putText(region, shape, (cx, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
                 cv2.imshow("image", region)
                 cv2.waitKey(0)
 
         except Exception:
             pass
+
+    if 1 < len(lego_blocks) > 1:
+        return
+
+    print 'block=' + str(lego_blocks[0])
 
 
 if __name__ == "__main__":
