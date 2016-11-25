@@ -19,10 +19,17 @@ if __name__=="__main__":
     legoPlatform = legoPlatform()
 
     legoPlatform.reset()
+    directions = {"l":"left", "r":"right",  "u":"up", "d":"down"}
 
-    directions = ["left", "right", "top", "bottom"]
-    for direction in directions:
-        legoPlatform.tilt(direction)
-        time.sleep(0.75)
-        legoPlatform.reset()
-        time.sleep(0.75)
+    print ('Direction options: ' + str(directions))
+
+
+    while True:
+        direction = raw_input('Direction? ')
+        try:
+            logging.info('Input ' + str(direction) + '; selecting direction ' + directions[direction])
+            legoPlatform.tilt(directions[direction])
+            time.sleep(1)
+            legoPlatform.reset()
+        except KeyError, e:
+            print('Unknown direction ' + '\'' + str(direction) + '\'')
