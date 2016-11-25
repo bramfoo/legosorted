@@ -1,7 +1,8 @@
 import logging  # General logging
 import time
 
-from legoPlatform import legoPlatform
+from legoPlatform.legoPlatform import legoPlatform
+from legoPlatform.direction import Direction
 
 
 # General config
@@ -19,15 +20,15 @@ if __name__=="__main__":
     legoPlatform = legoPlatform()
 
     legoPlatform.initialise()
-    directions = {"l":"left", "r":"right",  "u":"up", "d":"down", "ld":"left-down", "lu":"left-up", "rd":"right-down", "ru":"right-up"}
 
-    print ('Direction options: ' + str(directions))
+    directions = {'l':Direction.left, 'r':Direction.right, 'u':Direction.up, 'd':Direction.down, 'lu':Direction.left_up, 'ld':Direction.left_down, 'ru': Direction.right_up, 'rd':Direction.right_down}
 
+    print ('Direction options: ' + str([e.name for e in directions.values()]))
 
     while True:
         direction = raw_input('Direction? ')
         try:
-            logging.info('Input \'' + str(direction) + '\'; selecting direction ' + directions[direction])
+            logging.info('Input \'' + str(direction) + '\'; selecting direction ' + str(directions[direction]))
             legoPlatform.tilt(directions[direction])
             time.sleep(0.5)
             legoPlatform.recenter()
