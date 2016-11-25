@@ -1,24 +1,29 @@
 from point import Point
+from lego_block import LegoBlock
 import imutils
 import cv2
+import glob
+
+debug = True
+
+
+def display(title, image):
+    if debug:
+        cv2.imshow(title, image)
+        cv2.waitKey(0)
 
 
 def threshold_image(region):
-    cv2.imshow("region", region)
-    cv2.waitKey(0)
+    display("region", region)
 
     gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("gray", gray)
-    cv2.waitKey(0)
+    display("gray", gray)
 
     blurred = cv2.medianBlur(gray, 5)
-    # blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    cv2.imshow("blurred", blurred)
-    cv2.waitKey(0)
+    display("blurred", blurred)
 
     thresh = cv2.threshold(blurred, 80, 255, cv2.THRESH_BINARY)[1]
-    cv2.imshow("thresh", thresh)
-    cv2.waitKey(0)
+    display("thresh", thresh)
 
     return thresh
 
@@ -31,57 +36,54 @@ def detect_shape(contour):
         # Ignore small shapes which are likely light reflections, or regions from the side of the image
         return None
 
-    approx_poly = cv2.approxPolyDP(contour, 0.04 * curve_length, True)
+    approximated_poly = cv2.approxPolyDP(contour, 0.04 * curve_length, True)
 
-    if len(approx_poly) != 4:
+    if len(approximated_poly) != 4:
         # For now, we're only interested in squares and rectangles
         return None
 
-    # Get the bounding box of the contour and use the bounding box to compute the aspect ratio
-    (x, y, w, h) = cv2.boundingRect(approx_poly)
-    ratio = w / float(h)
-
-    return "square" if 0.95 <= ratio <= 1.05 else "rectangle"
+    return LegoBlock(approximated_poly)  # "square" if 0.95 <= ratio <= 1.05 else "rectangle"
 
 
-def main():
-    image = cv2.imread('screen-shot.png')
-
-    top_left = Point(100, 35)
-    lower_right = Point(430, 370)
-
+def find_single_block(file_name, top_left, lower_right):
+    image = cv2.imread(file_name)
     region = image[top_left.y:lower_right.y, top_left.x:lower_right.x]
     thresholded = threshold_image(region)
 
-    # find contours in the thresholded image and initialize the shape detector
+    # Find contours in the thresholded image and initialize the shape detector
     contours = cv2.findContours(thresholded.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = contours[0] if imutils.is_cv2() else contours[1]
-
     lego_blocks = []
 
     for contour in contours:
         try:
-            # compute the center of the contour, then detect the name of the shape using only the contour
-            moments = cv2.moments(contour)
-            cx = int(moments["m10"] / moments["m00"])
-            cy = int(moments["m01"] / moments["m00"])
             shape = detect_shape(contour)
-
             if shape is not None:
                 lego_blocks.append(shape)
-                cv2.drawContours(region, [contour], -1, (0, 255, 0), 2)
-                cv2.putText(region, shape, (cx, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
-                cv2.imshow("image", region)
-                cv2.waitKey(0)
-
         except Exception:
+            # Ignore this, most likely a contour from
             pass
 
-    if 1 < len(lego_blocks) > 1:
-        return
+    if len(lego_blocks) > 1:
+        raise Exception('more than 1 block detected in ' + file_name)
+    elif len(lego_blocks) < 1:
+        raise Exception('no block detected in ' + file_name)
 
-    print 'block=' + str(lego_blocks[0])
+    return lego_blocks[0]
+
+
+def main():
+    top_left = Point(110, 45)
+    lower_right = Point(430, 340)
+
+    # TODO create the image and feed it to find_single_block()
+
+    for f in glob.glob("*.png"):
+        try:
+            lego_block = find_single_block(f, top_left, lower_right)
+            print str(lego_block)
+        except Exception as e:
+            print "%s" % e
 
 
 if __name__ == "__main__":
