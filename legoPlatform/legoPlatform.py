@@ -66,13 +66,13 @@ class legoPlatform:
             start = servo.degreesToPulse(servo.pos)
             end = servo.degreesToPulse(position)
             stepSize = int(math.ceil(float(end - start)/50))
-            logging.info('Servo {0} PW is from {1} to {2}'.format(servo, start, end))
+            logging.debug('Servo {0} PW is from {1} to {2}'.format(servo, start, end))
 
             if (stepSize == 0):
                 steps.append([None] * 50)
             else:
                 steps.append(range(start, end + stepSize, stepSize)) # Make it an 'inclusive' list
-            logging.info('Servo {0} is using {1} steps: {2}'.format(servo, len(steps[index]), steps[index]))
+            logging.debug('Servo {0} is using {1} steps: {2}'.format(servo, len(steps[index]), steps[index]))
 
         # Move the servos using the generated step lists
         for item in itertools.izip_longest(*steps):
@@ -103,3 +103,11 @@ class legoPlatform:
             self.moveServos([0, -90])
         if (direction == "down"):
             self.moveServos([0, 90])
+        if (direction == "left-down"):
+            self.moveServos([-45, 45])
+        if (direction == "left-up"):
+            self.moveServos([-45, -45])
+        if (direction == "right-down"):
+            self.moveServos([45, 45])
+        if (direction == "right-up"):
+            self.moveServos([45, -45])

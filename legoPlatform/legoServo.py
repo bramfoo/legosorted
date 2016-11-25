@@ -1,4 +1,5 @@
 import logging
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +32,13 @@ class legoServo(object):
     def degreesToPulse(self, value):
         # Distinguish between pos and neg as defined center may not be halfway between min/max
         if (value < 0):
-            return self.center + (value/90) * (self.center - self.min)
+            result = int(math.ceil(self.center + (float(value)/90) * (self.center - self.min)))
+            logging.debug(str(value) + ' degrees is ' + str(result) + ' PW')
+            return result
         else:
-            return (value / 90) * (self.max - self.center) + self.center
+            result = int(math.ceil((float(value) / 90) * (self.max - self.center) + self.center))
+            logging.debug(str(value) + ' degrees is ' + str(result) + ' PW')
+            return result
 
 
     def __str__(self):

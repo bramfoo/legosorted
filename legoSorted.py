@@ -19,7 +19,7 @@ if __name__=="__main__":
     legoPlatform = legoPlatform()
 
     legoPlatform.initialise()
-    directions = {"l":"left", "r":"right",  "u":"up", "d":"down"}
+    directions = {"l":"left", "r":"right",  "u":"up", "d":"down", "ld":"left-down", "lu":"left-up", "rd":"right-down", "ru":"right-up"}
 
     print ('Direction options: ' + str(directions))
 
