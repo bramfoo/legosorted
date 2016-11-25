@@ -1,5 +1,4 @@
 from shape import Shape
-from color import Color
 from math import sqrt
 
 
@@ -7,7 +6,7 @@ class LegoBlock:
 
     _pixels_per_circle = 35
 
-    def __init__(self, approximated_poly, color=Color.unknown):
+    def __init__(self, approximated_poly, color):
         dimension1 = LegoBlock.distance(approximated_poly[0], approximated_poly[1])
         dimension2 = LegoBlock.distance(approximated_poly[1], approximated_poly[2])
         self.length = int((max(dimension1, dimension2) + 10) / LegoBlock._pixels_per_circle)

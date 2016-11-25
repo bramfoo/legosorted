@@ -1,5 +1,6 @@
 from point import Point
 from lego_block import LegoBlock
+from color_labeler import ColorLabeler
 import imutils
 import cv2
 import glob
@@ -28,7 +29,7 @@ def threshold_image(region):
     return thresh2
 
 
-def detect_shape(contour):
+def detect_shape(contour, color):
     # Get the (outer) length of the contour
     curve_length = cv2.arcLength(contour, True)
 
@@ -42,13 +43,15 @@ def detect_shape(contour):
         # For now, we're only interested in squares and rectangles
         return None
 
-    return LegoBlock(approximated_poly)  # "square" if 0.95 <= ratio <= 1.05 else "rectangle"
+    return LegoBlock(approximated_poly, color)
 
 
 def find_single_block(file_name, top_left, lower_right):
     image = cv2.imread(file_name)
     region = image[top_left.y:lower_right.y, top_left.x:lower_right.x]
+    lab = cv2.cvtColor(region, cv2.COLOR_BGR2LAB)
     thresholded = threshold_image(region)
+    color_labeler = ColorLabeler()
 
     # Find contours in the thresholded image and initialize the shape detector
     contours = cv2.findContours(thresholded.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -57,7 +60,8 @@ def find_single_block(file_name, top_left, lower_right):
 
     for contour in contours:
         try:
-            shape = detect_shape(contour)
+            color = color_labeler.label(lab, contour)
+            shape = detect_shape(contour, color)
             if shape is not None:
                 lego_blocks.append(shape)
         except Exception:
@@ -78,7 +82,7 @@ def main():
 
     # TODO create the image and feed it to find_single_block()
 
-    for f in glob.glob("*-7.png"):
+    for f in glob.glob("*.png"):
         try:
             lego_block = find_single_block(f, top_left, lower_right)
             print str(lego_block)
