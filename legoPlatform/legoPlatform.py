@@ -4,7 +4,10 @@ import Adafruit_PCA9685
 
 from legoServo import legoServo
 
-delay_period = 0.01
+MOVE_DELAY = 0.01
+RESET_DELAY = 0.005 # Resetting can be quicker, but not too quick to shake the whole setup
+WAIT_DELAY = 0.25
+
 logger = logging.getLogger(__name__)
 
 class legoPlatform:
@@ -38,33 +41,42 @@ class legoPlatform:
         pulse //= pulse_length
         self.pwm.set_pwm(channel, 0, pulse)
 
-    # Returns all servos given to the center position
-    def reset(self):
-        logging.info('Resetting servo(s) {0} to center position'.format(self.servoList))
+    # Initialisation. Moves all servos to center, given that we may not know the starting position
+    def initialise(self):
+        logging.info("Initialising...")
+        # Move both servos from both extremes to center. Do not rely on knowing the servo position
         for servo in self.servoList:
             self.pwm.set_pwm(servo.channel, 0, servo.center)
-
+            # Now we should reliably be in the center
+            servo.pos = servo.center
 
     # Helper function to move a servo to a specific direction
-    def moveServo(self, servo, start, end):
+    def moveServo(self, servo, start, end, speed=MOVE_DELAY):
         logging.info('Moving servo {0} from position {1} to {2}'.format(servo, start, end))
         step = 5 if (end - start > 0) else -5
         for position in range(start, end, step):
             logging.debug('Moving servo {0} to position {1}'.format(servo, position))
             self.pwm.set_pwm(servo.channel, 0, position)
-            time.sleep(delay_period)
+            time.sleep(speed)
+        logging.debug('Servo ' + str(servo) + ' now at position ' + str(servo.pos))
+        servo.pos = end
 
+     # Recenter platform
+    def recenter(self):
+        logging.info('Recentering platform')
+        for servo in self.servoList:
+            self.moveServo(servo, servo.pos, servo.center, RESET_DELAY)
 
     # Tilt the platform in one of four directions
     def tilt(self, direction):
         logging.info('Moving platform to {}'.format(direction))
 
-        # FIXME: assumption here is that the servo is always centered. Perhaps the servo should keep track of it's location?
         if (direction == "left"):
-            self.moveServo(self.servoList[0], self.servoList[0].center, self.servoList[0].min)
+            self.moveServo(self.servoList[0], self.servoList[0].pos, self.servoList[0].min)
         if (direction == "right"):
-            self.moveServo(self.servoList[0], self.servoList[0].center, self.servoList[0].max)
+            self.moveServo(self.servoList[0], self.servoList[0].pos, self.servoList[0].max)
         if (direction == "up"):
-            self.moveServo(self.servoList[1], self.servoList[1].center, self.servoList[1].min)
+            self.moveServo(self.servoList[1], self.servoList[1].pos, self.servoList[1].min)
         if (direction == "down"):
-            self.moveServo(self.servoList[1], self.servoList[1].center, self.servoList[1].max)
+            self.moveServo(self.servoList[1], self.servoList[1].pos, self.servoList[1].max)
+        time.sleep(WAIT_DELAY)
