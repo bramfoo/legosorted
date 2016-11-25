@@ -2,7 +2,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# These are good defaults
+# These are suggested defaults
 SERVO_MIN = 150  # Min pulse length out of 4096
 SERVO_MAX = 600  # Max pulse length out of 4096
 
@@ -26,6 +26,15 @@ class legoServo(object):
     def pos(self, value):
         logging.debug('Servo ' + self.name + ' position now ' + str(value))
         self._pos = value
+
+    # -90 is min, 0 is center, 90 is max
+    def degreesToPulse(self, value):
+        # Distinguish between pos and neg as defined center may not be halfway between min/max
+        if (value < 0):
+            return self.center + (value/90) * (self.center - self.min)
+        else:
+            return (value / 90) * (self.max - self.center) + self.center
+
 
     def __str__(self):
         return "{0}[{1}]({2})".format(self.name, self.channel, self.pos)

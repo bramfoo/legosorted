@@ -1,5 +1,7 @@
 import logging  # General logging
+import math
 import time
+import itertools
 import Adafruit_PCA9685
 
 from legoServo import legoServo
@@ -7,6 +9,8 @@ from legoServo import legoServo
 MOVE_DELAY = 0.01
 RESET_DELAY = 0.005 # Resetting can be quicker, but not too quick to shake the whole setup
 WAIT_DELAY = 0.25
+
+SERVO_STEP_SIZE = 5
 
 logger = logging.getLogger(__name__)
 
@@ -48,35 +52,54 @@ class legoPlatform:
         for servo in self.servoList:
             self.pwm.set_pwm(servo.channel, 0, servo.center)
             # Now we should reliably be in the center
-            servo.pos = servo.center
+            servo.pos = 0
 
     # Helper function to move a servo to a specific direction
-    def moveServo(self, servo, start, end, speed=MOVE_DELAY):
-        logging.info('Moving servo {0} from position {1} to {2}'.format(servo, start, end))
-        step = 5 if (end - start > 0) else -5
-        for position in range(start, end, step):
-            logging.debug('Moving servo {0} to position {1}'.format(servo, position))
-            self.pwm.set_pwm(servo.channel, 0, position)
+    def moveServos(self, positions, speed=MOVE_DELAY):
+        # For each servo, calculate the steps required
+        # Let's do it in at most 50 steps for each servo
+        steps = list()
+        for index, position in enumerate(positions):
+            servo = self.servoList[index]
+            logging.info('Moving servo {0} from position {1} to {2}'.format(servo, servo.pos, position))
+
+            start = servo.degreesToPulse(servo.pos)
+            end = servo.degreesToPulse(position)
+            stepSize = int(math.ceil(float(end - start)/50))
+            logging.info('Servo {0} PW is from {1} to {2}'.format(servo, start, end))
+
+            if (stepSize == 0):
+                steps.append([None] * 50)
+            else:
+                steps.append(range(start, end + stepSize, stepSize)) # Make it an 'inclusive' list
+            logging.info('Servo {0} is using {1} steps: {2}'.format(servo, len(steps[index]), steps[index]))
+
+        # Move the servos using the generated step lists
+        for item in itertools.izip_longest(*steps):
+            if (item[0] != None):
+                self.pwm.set_pwm(self.servoList[0].channel, 0, item[0])
+            if (item[1] != None):
+                self.pwm.set_pwm(self.servoList[1].channel, 0, item[1])
             time.sleep(speed)
-        logging.debug('Servo ' + str(servo) + ' now at position ' + str(servo.pos))
-        servo.pos = end
+
+        # Save the new positions
+        for index, position in enumerate(positions):
+            self.servoList[index].pos = position
 
      # Recenter platform
     def recenter(self):
         logging.info('Recentering platform')
-        for servo in self.servoList:
-            self.moveServo(servo, servo.pos, servo.center, RESET_DELAY)
+        self.moveServos([0, 0], RESET_DELAY)
 
-    # Tilt the platform in one of four directions
+    # Tilt the platform in any direction, between -90 and 90 degrees
     def tilt(self, direction):
         logging.info('Moving platform to {}'.format(direction))
 
         if (direction == "left"):
-            self.moveServo(self.servoList[0], self.servoList[0].pos, self.servoList[0].min)
+            self.moveServos([-90, 0])
         if (direction == "right"):
-            self.moveServo(self.servoList[0], self.servoList[0].pos, self.servoList[0].max)
+            self.moveServos([90, 0])
         if (direction == "up"):
-            self.moveServo(self.servoList[1], self.servoList[1].pos, self.servoList[1].min)
+            self.moveServos([0, -90])
         if (direction == "down"):
-            self.moveServo(self.servoList[1], self.servoList[1].pos, self.servoList[1].max)
-        time.sleep(WAIT_DELAY)
+            self.moveServos([0, 90])

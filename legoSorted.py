@@ -29,6 +29,7 @@ if __name__=="__main__":
         try:
             logging.info('Input \'' + str(direction) + '\'; selecting direction ' + directions[direction])
             legoPlatform.tilt(directions[direction])
+            time.sleep(0.5)
             legoPlatform.recenter()
         except KeyError, e:
             print('Unknown direction ' + '\'' + str(direction) + '\'')
