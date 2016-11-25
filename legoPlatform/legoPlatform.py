@@ -4,15 +4,17 @@ import time
 import itertools
 import Adafruit_PCA9685
 
+from direction import Direction
 from legoServo import legoServo
 
 MOVE_DELAY = 0.01
-RESET_DELAY = 0.005 # Resetting can be quicker, but not too quick to shake the whole setup
+RESET_DELAY = 0.005  # Resetting can be quicker, but not too quick to shake the whole setup
 WAIT_DELAY = 0.25
 
 SERVO_STEP_SIZE = 5
 
 logger = logging.getLogger(__name__)
+
 
 class legoPlatform:
 
@@ -32,7 +34,6 @@ class legoPlatform:
         servo = legoServo(name, channel, rotation_min, rotation_max)
         self.servoList.append(servo)
         return name
-
 
     # Helper function to make setting a servo pulse width simpler.
     def set_servo_pulse(self, channel, pulse):
@@ -68,7 +69,7 @@ class legoPlatform:
             stepSize = int(math.ceil(float(end - start)/50))
             logging.debug('Servo {0} PW is from {1} to {2}'.format(servo, start, end))
 
-            if (stepSize == 0):
+            if stepSize == 0:
                 steps.append([None] * 50)
             else:
                 steps.append(range(start, end + stepSize, stepSize)) # Make it an 'inclusive' list
@@ -76,9 +77,9 @@ class legoPlatform:
 
         # Move the servos using the generated step lists
         for item in itertools.izip_longest(*steps):
-            if (item[0] != None):
+            if item[0] is not None:
                 self.pwm.set_pwm(self.servoList[0].channel, 0, item[0])
-            if (item[1] != None):
+            if item[1] is not None:
                 self.pwm.set_pwm(self.servoList[1].channel, 0, item[1])
             time.sleep(speed)
 
@@ -86,7 +87,7 @@ class legoPlatform:
         for index, position in enumerate(positions):
             self.servoList[index].pos = position
 
-     # Recenter platform
+    # Recenter platform
     def recenter(self):
         logging.info('Recentering platform')
         self.moveServos([0, 0], RESET_DELAY)
@@ -95,19 +96,19 @@ class legoPlatform:
     def tilt(self, direction):
         logging.info('Moving platform to {}'.format(direction))
 
-        if (direction == "left"):
+        if direction == Direction.left:
             self.moveServos([-90, 0])
-        if (direction == "right"):
+        if direction == Direction.right:
             self.moveServos([90, 0])
-        if (direction == "up"):
+        if direction == Direction.up:
             self.moveServos([0, -90])
-        if (direction == "down"):
+        if direction == Direction.down:
             self.moveServos([0, 90])
-        if (direction == "left-down"):
+        if direction == Direction.left_down:
             self.moveServos([-45, 45])
-        if (direction == "left-up"):
+        if direction == Direction.left_up:
             self.moveServos([-45, -45])
-        if (direction == "right-down"):
+        if direction == Direction.right_down:
             self.moveServos([45, 45])
-        if (direction == "right-up"):
+        if direction == Direction.right_up:
             self.moveServos([45, -45])
