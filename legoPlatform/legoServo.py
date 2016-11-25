@@ -8,12 +8,12 @@ SERVO_MAX = 600  # Max pulse length out of 4096
 
 class legoServo:
 
-    def __init__(self, name, channel, rotation_min=SERVO_MIN, rotation_max=SERVO_MAX):
+    def __init__(self, name, channel, centre, rotation_min=SERVO_MIN, rotation_max=SERVO_MAX):
         self.name = name
         self.channel = channel
+        self.center = centre
         self.min = rotation_min
         self.max = rotation_max
-        self.center = (rotation_min + rotation_max)/2
         logger.debug('Creating servo at channel {0} with pulse lengths between ({1}, {2})'.format(channel, rotation_min, rotation_max))
 
     def __str__(self):

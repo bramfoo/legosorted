@@ -16,9 +16,9 @@ class legoPlatform:
         self.pwm.set_pwm_freq(60)
 
         # Add servos
-        # The defaults don't centre very well
-        self.servo_bottom = legoServo("bottom", 15, 120, 570)  # Bottom servo (left/right) on channel 15
-        self.servo_top = legoServo("top", 11, 180, 640)  # Top servo (forward/back) on channel 11
+        # The defaults don't work very well
+        self.servo_top = legoServo("F-B", 11, 400, 180, 640)  # Side servo (forward/back) on channel 11
+        self.servo_bottom = legoServo("L-R", 15, 365, 140, 590)  # Middle servo (left/right) on channel 15
         self.servoList = [self.servo_bottom, self.servo_top]
 
     def addServo(self, name, channel, rotation_min, rotation_max):
