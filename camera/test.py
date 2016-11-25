@@ -1,7 +1,5 @@
-from SimpleCV import *
+from picamera import PiCamera
 
-cam = Camera()
-
-while True:
-    img = cam.getImage()
-    img.show()
+camera = PiCamera()
+camera.resolution = (600, 400)
+camera.capture('screen-shot.png')
