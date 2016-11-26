@@ -20,7 +20,7 @@ class Magician:
     lock_file = 'magician.pickles'
 
     def __init__(self):
-        pass
+        self.box = box.Box()
 
     def run(self):
         while True:
@@ -42,6 +42,8 @@ class Magician:
                     print "looking for shape: %s" % shape
                 else:
                     print "no choice, sort on color"
+            else:
+                self.box.reset()
 
             time.sleep(1)
 
