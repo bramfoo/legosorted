@@ -23,6 +23,7 @@ class Magician:
     def __init__(self):
         self.box = box.Box()
         self.platform = legoPlatform.legoPlatform()
+        self.platform.initialise()
 
     def run(self):
         while True:
