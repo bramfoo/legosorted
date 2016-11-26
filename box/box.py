@@ -4,6 +4,8 @@ from sort import Sort
 
 class Box:
 
+    garbage_direction = Direction.up
+
     def __init__(self):
         self.color = None
         self.shape = None
@@ -18,7 +20,7 @@ class Box:
             Slot(Direction.left),
             Slot(Direction.down),
             Slot(Direction.right),
-            Slot(Direction.up)
+            Slot(Box.garbage_direction)
         ]
 
     def offer(self, lego_block):

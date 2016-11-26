@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def stop():
     if not os.path.isfile(Magician.lock_file):
         return as_json({"result": False})
-    os.remove(Magician.lock_file)
+    os.remove('magician.pickles')
     return as_json({"result": True})
 
 
@@ -26,17 +26,17 @@ def start():
     if os.path.isfile(Magician.lock_file):
         return as_json({"result": False})
 
-    shape = request.args.get('shape')
-    color = request.args.get('color')
-    sort = request.args.get('sort')
+    shape = Shape.from_string(request.args.get('shape'))
+    color = Color.from_string(request.args.get('color'))
+    sort = Sort.from_string(request.args.get('sort'))
     length = request.args.get('length')
     width = request.args.get('width')
 
     pickle.dump({
-        "shape": None if shape is None else Shape[shape],
-        "color": None if color is None else Color[color],
-        "sort": Sort.color if sort is None else Sort[sort],
-        "dimension": None if length is None or width is None else Dimension(length, width)
+        "shape": shape,
+        "color": color,
+        "sort": sort,
+        "dimension": None if length is None or width is None else Dimension(int(length), int(width))
     }, open(Magician.lock_file, "wb"))
     return as_json({"result": True})
 
