@@ -1,13 +1,14 @@
 from gpiozero import LED
+from picamera import PiCamera
 
-led = LED(18)
+led = LED(18)  # Add some ambient light for crispier picture :-)
+
+camera = PiCamera()
+camera.resolution = (600, 400)
 
 
 def make_picture(file_name):
     try:
-        from picamera import PiCamera
-        camera = PiCamera()
-        camera.resolution = (600, 400)
         toggle_light(True)
         camera.capture(file_name)
         toggle_light(False)
