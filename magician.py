@@ -45,10 +45,10 @@ class Magician:
                     direction = self.box.offer(lego_block)
                     self.platform.tilt(direction)
                     time.sleep(0.5)
-                    legoPlatform.recenter()
+                    self.platform.recenter()
             else:
                 self.box.reset()
-                legoPlatform.recenter()
+                self.platform.recenter()
 
             time.sleep(1)
 
