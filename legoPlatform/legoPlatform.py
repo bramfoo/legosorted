@@ -16,7 +16,7 @@ SERVO_STEP_SIZE = 5
 logger = logging.getLogger(__name__)
 
 
-class legoPlatform:
+class legoPlatform(object):
 
     def __init__(self):
         # Initialise the PCA9685 using the default address (0x40).

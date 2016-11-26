@@ -82,7 +82,7 @@ def main():
 
     # TODO create the image and feed it to find_single_block()
 
-    for f in glob.glob("*.png"):
+    for f in glob.glob("*-6.png"):
         try:
             lego_block = find_single_block(f, top_left, lower_right)
             print str(lego_block)
