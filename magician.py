@@ -23,6 +23,7 @@ class Magician:
     def __init__(self):
         self.box = box.Box()
         self.platform = legoPlatform.legoPlatform()
+        self.platform.initialise()
 
     def run(self):
         while True:
@@ -39,6 +40,8 @@ class Magician:
                     # Probably 2 blocks
                     self.platform.tilt(box.Box.garbage_direction)
 
+                print "lego_block=%s" % lego_block
+
                 if lego_block is not None:
                     data = pickle.load(open(Magician.lock_file, "rb"))
                     color = data['color']
@@ -49,8 +52,11 @@ class Magician:
                     self.box.set_preferences(color, shape, dimension, sort)
                     direction = self.box.offer(lego_block)
                     self.platform.tilt(direction)
+                    time.sleep(0.5)
+                    self.platform.recenter()
             else:
                 self.box.reset()
+                self.platform.recenter()
 
             time.sleep(1)
 
