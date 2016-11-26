@@ -7,6 +7,6 @@ class Sort(Enum):
 
     @staticmethod
     def from_string(value):
-        if value is None:
+        if value is None or value == "":
             return None
         return Sort.color if value == 'color' else Sort.shape

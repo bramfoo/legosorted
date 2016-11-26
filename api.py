@@ -2,8 +2,8 @@ import logging
 import json
 import os
 import pickle
-from flask import Flask, Response, request
-from magician import Magician
+from flask import Flask, Response, request, render_template
+#from magician import Magician
 from recogniser.shape import Shape
 from recogniser.color import Color
 from box.sort import Sort
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @app.route("/api/stop")
 def stop():
-    if not os.path.isfile(Magician.lock_file):
+    if not os.path.isfile('magician.pickles'):
         return as_json({"result": False})
     os.remove('magician.pickles')
     return as_json({"result": True})
@@ -23,7 +23,7 @@ def stop():
 
 @app.route("/api/start")
 def start():
-    if os.path.isfile(Magician.lock_file):
+    if os.path.isfile('magician.pickles'):
         return as_json({"result": False})
 
     shape = Shape.from_string(request.args.get('shape'))
@@ -32,13 +32,24 @@ def start():
     length = request.args.get('length')
     width = request.args.get('width')
 
+    if length == "":
+        length = None
+
+    if width == "":
+        width = None
+
     pickle.dump({
         "shape": shape,
         "color": color,
-        "sort": sort,
+        "sort": Sort.color if sort is None else sort,
         "dimension": None if length is None or width is None else Dimension(int(length), int(width))
-    }, open(Magician.lock_file, "wb"))
+    }, open('magician.pickles', "wb"))
     return as_json({"result": True})
+
+
+@app.route("/")
+def index():
+    return render_template('index.html')
 
 
 def as_json(data):

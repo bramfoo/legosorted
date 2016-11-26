@@ -11,7 +11,7 @@ class Color(Enum):
 
     @staticmethod
     def from_string(value):
-        if value is None:
+        if value is None or value == "":
             return None
         if value == 'beige':
             return Color.beige
