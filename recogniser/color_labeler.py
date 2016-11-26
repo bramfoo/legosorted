@@ -2,6 +2,7 @@ from scipy.spatial import distance as dist
 from collections import OrderedDict
 import numpy as np
 import cv2
+from color import Color
 
 
 class ColorLabeler:
@@ -10,12 +11,12 @@ class ColorLabeler:
         # initialize the colors dictionary, containing the color
         # name as the key and the RGB tuple as the value
         colors = OrderedDict({
-            "Beige": (0xB8, 0x86, 0x0B),
-            "White": (0xFF, 0xFF, 0xFF),
-            "Red": (0xFF, 0x00, 0x00),
-            "DarkOrange": (0xFF, 0x8C, 0x00),
-            "Green": (0x00, 0x80, 0x00),
-            "Yellow": (0xFF, 0xFF, 0x00),
+            Color.beige: (0xB8, 0x86, 0x0B),
+            Color.white: (0xFF, 0xFF, 0xFF),
+            Color.red: (0xFF, 0x00, 0x00),
+            Color.dark_orange: (0xFF, 0x8C, 0x00),
+            Color.green: (0x00, 0x80, 0x00),
+            Color.yellow: (0xFF, 0xFF, 0x00),
 
             # "DarkGreen": (0x00, 0x64, 0x00),
             # "LightGreen": (0x90, 0xEE, 0x90),
