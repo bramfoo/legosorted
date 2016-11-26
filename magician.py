@@ -33,7 +33,8 @@ class Magician:
                 time.sleep(3)
                 camera.make_picture(Magician.image_file)
                 lego_block = recogniser.find_single_block(Magician.image_file, Magician.top_left, Magician.lower_right)
-
+                print "lego_block=%s" % lego_block
+                
                 if lego_block is not None:
                     data = pickle.load(open(Magician.lock_file, "rb"))
                     color = data['color']
