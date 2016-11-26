@@ -1,19 +1,14 @@
 import time
 import os
 import pickle
-import threading
-import flask
 import logging
 import os.path
-import json
 import feeder.feeder
 import camera.camera
 from box import box
 from recogniser import recogniser, point
-from legoPlatform import legoPlatform, direction
-from recogniser import recogniser
+from legoPlatform import legoPlatform
 from camera import camera
-from flask import Flask, Response
 
 logger = logging.getLogger(__name__)
 
@@ -42,17 +37,12 @@ class Magician:
                     data = pickle.load(open(Magician.lock_file, "rb"))
                     color = data['color']
                     shape = data['shape']
+                    dimension = data['dimension']
+                    sort = data['sort']
 
-                    if color is not None and shape is not None:
-                        print "looking for %s %s" % (color, shape)
-                    elif color is not None:
-                        print "looking for color: %s" % color
-                    elif shape is not None:
-                        print "looking for shape: %s" % shape
-                    else:
-                        print "no choice, sort on color"
-
-                    # TODO self.platform.tilt(direction.Direction.left)
+                    self.box.set_preferences(color, shape, dimension, sort)
+                    direction = self.box.offer(lego_block)
+                    self.platform.tilt(direction)
             else:
                 self.box.reset()
 
