@@ -19,3 +19,6 @@ def make_picture(file_name):
 
 def toggle_light(status):
     led.on() if status else led.off()
+
+if __name__ == "__main__":
+    make_picture('test-image.png')
